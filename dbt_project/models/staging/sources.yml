@@ -1,0 +1,144 @@
+version: 2
+
+sources:
+  - name: raw_worldbank
+    schema: raw
+    description: "World Bank Open Data API — country-year economic indicators"
+    tables:
+      - name: worldbank_gdp
+        description: "GDP per capita (current USD) — indicator NY.GDP.PCAP.CD"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: countryiso3code
+            description: "ISO 3166-1 alpha-3 country code — primary join key"
+            tests: [not_null]
+          - name: date
+            description: "Year as string (e.g. '2022')"
+            tests: [not_null]
+          - name: value
+            description: "GDP per capita in current USD"
+          - name: country_name
+            description: "Country name as returned by WB API (inconsistent spelling)"
+
+      - name: worldbank_gini
+        description: "Gini index — indicator SI.POV.GINI"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: countryiso3code
+            tests: [not_null]
+          - name: date
+            tests: [not_null]
+          - name: value
+            description: "Gini index 0-100; null for ~60% of country-years — imputation required"
+
+      - name: worldbank_unemployment
+        description: "Unemployment total % of labor force — indicator SL.UEM.TOTL.ZS"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: countryiso3code
+            tests: [not_null]
+          - name: date
+            tests: [not_null]
+          - name: value
+            description: "Unemployment rate as percentage"
+
+      - name: worldbank_population
+        description: "Total population — indicator SP.POP.TOTL"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: countryiso3code
+            tests: [not_null]
+          - name: date
+            tests: [not_null]
+          - name: value
+            description: "Total population count"
+
+  - name: raw_owid
+    schema: raw
+    description: "Our World in Data CO2 and GHG emissions dataset — country-year"
+    tables:
+      - name: owid_co2
+        description: "OWID CO2 dataset — 79 columns, country-year from 1750"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: iso_code
+            description: "ISO 3166-1 alpha-3; null for aggregates (World, continents) — filter required"
+            tests: [not_null]
+          - name: year
+            tests: [not_null]
+          - name: co2_per_capita
+            description: "CO2 emissions per capita in metric tonnes"
+          - name: co2
+            description: "Total CO2 in million tonnes"
+          - name: temperature_change_from_co2
+            description: "Global mean surface temperature change attributed to CO2 (Celsius)"
+          - name: ghg_per_capita
+            description: "GHG emissions per capita (tonnes CO2-equivalent)"
+
+  - name: raw_happiness
+    schema: raw
+    description: "World Happiness Report — Gallup World Poll, country-year 2005-2022"
+    tables:
+      - name: world_happiness
+        description: "WHR panel data — Life Ladder score and sub-components"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: country_name
+            description: "Country name — WHR uses non-standard names, crosswalk required"
+            tests: [not_null]
+          - name: year
+            tests: [not_null]
+          - name: life_ladder
+            description: "Happiness score on Cantril ladder scale (0-10); primary dependent variable"
+            tests: [not_null]
+          - name: log_gdp_per_capita
+            description: "Log of GDP per capita in PPP"
+          - name: social_support
+            description: "Binary question average: 'do you have someone to count on in trouble?' (0-1)"
+          - name: healthy_life_expectancy_at_birth
+            description: "Years of healthy life expectancy at birth"
+          - name: freedom_to_make_life_choices
+            description: "Average binary question: satisfaction with freedom (0-1)"
+          - name: generosity
+            description: "Residual of regressing national average of donation on log GDP per capita"
+          - name: perceptions_of_corruption
+            description: "Average of corruption perception questions (0-1, lower = more corrupt)"
+
+  - name: raw_berkeley
+    schema: raw
+    description: "Berkeley Earth — country-level annual temperature anomaly"
+    tables:
+      - name: berkeley_earth_temperature
+        description: "Annual temperature anomaly per country (relative to 1951-1980 baseline)"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}
+        columns:
+          - name: iso_alpha3
+            description: "ISO 3166-1 alpha-3 — added during ingestion via country name crosswalk"
+            tests: [not_null]
+          - name: year
+            tests: [not_null]
+          - name: annual_anomaly_celsius
+            description: "Mean annual temperature anomaly in Celsius relative to 1951-1980 baseline"
+          - name: annual_uncertainty
+            description: "95% confidence interval width for the anomaly estimate"

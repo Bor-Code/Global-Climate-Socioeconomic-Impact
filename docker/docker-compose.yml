@@ -1,18 +1,5 @@
-# =============================================================================
-# docker-compose.yml
-# Servisler:
-#   1. dagster-webserver  — Dagster UI (port 3000)
-#   2. dagster-daemon     — zamanlanmış run'lar + sensor polling
-#   3. streamlit          — dashboard (port 8501)
-#
-# Kullanım: docker-compose up --build
-# =============================================================================
-
 version: "3.9"
 
-# ---------------------------------------------------------------------------
-# Ortak environment değişkenleri (DRY)
-# ---------------------------------------------------------------------------
 x-common-env: &common-env
   env_file: ../.env
   environment:
@@ -21,9 +8,6 @@ x-common-env: &common-env
 
 services:
 
-  # -------------------------------------------------------------------------
-  # 1. Dagster Webserver — Orchestration UI
-  # -------------------------------------------------------------------------
   dagster-webserver:
     build:
       context: ..
@@ -36,8 +20,8 @@ services:
       - "3000:3000"
     volumes:
       - dagster_home:/dagster_home
-      - ../data:/data                   # ham veri paylaşımı
-      - ../dbt_project:/app/dbt_project # dbt modeller hot-reload
+      - ../data:/data
+      - ../dbt_project:/app/dbt_project
     depends_on:
       - dagster-daemon
     restart: unless-stopped
@@ -47,9 +31,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # -------------------------------------------------------------------------
-  # 2. Dagster Daemon — Sensor ve schedule çalıştırıcı
-  # -------------------------------------------------------------------------
   dagster-daemon:
     build:
       context: ..
@@ -64,9 +45,6 @@ services:
       - ../dbt_project:/app/dbt_project
     restart: unless-stopped
 
-  # -------------------------------------------------------------------------
-  # 3. Streamlit Dashboard
-  # -------------------------------------------------------------------------
   streamlit:
     build:
       context: ..
@@ -91,9 +69,6 @@ services:
       timeout: 10s
       retries: 3
 
-# ---------------------------------------------------------------------------
-# Named volumes
-# ---------------------------------------------------------------------------
 volumes:
   dagster_home:
     driver: local
