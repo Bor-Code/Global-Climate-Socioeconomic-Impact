@@ -1,8 +1,8 @@
 # Cross-platform line ending normalization
-# Tüm metin dosyaları repository'de LF olarak saklanır
+# All text files are stored as LF in the repository
 * text=auto eol=lf
 
-# Açıkça metin olarak işaretlenenler
+# Explicitly mark text files
 *.py    text eol=lf
 *.sql   text eol=lf
 *.yml   text eol=lf
@@ -14,7 +14,7 @@
 *.json  text eol=lf
 *.sh    text eol=lf
 
-# Binary dosyalar — line ending dönüşümü yapma
+# Do not perform line ending normalization on binary files
 *.png   binary
 *.jpg   binary
 *.gif   binary
