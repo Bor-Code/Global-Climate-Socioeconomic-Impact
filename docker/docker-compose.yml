@@ -1,0 +1,99 @@
+# =============================================================================
+# docker-compose.yml
+# Servisler:
+#   1. dagster-webserver  — Dagster UI (port 3000)
+#   2. dagster-daemon     — zamanlanmış run'lar + sensor polling
+#   3. streamlit          — dashboard (port 8501)
+#
+# Kullanım: docker-compose up --build
+# =============================================================================
+
+version: "3.9"
+
+# ---------------------------------------------------------------------------
+# Ortak environment değişkenleri (DRY)
+# ---------------------------------------------------------------------------
+x-common-env: &common-env
+  env_file: ../.env
+  environment:
+    - DAGSTER_HOME=/dagster_home
+    - DUCKDB_PATH=/data/climate_wellbeing.duckdb
+
+services:
+
+  # -------------------------------------------------------------------------
+  # 1. Dagster Webserver — Orchestration UI
+  # -------------------------------------------------------------------------
+  dagster-webserver:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    container_name: climate_dagster_webserver
+    <<: *common-env
+    command: dagster-webserver -h 0.0.0.0 -p 3000 -w /app/orchestration/workspace.yaml
+    ports:
+      - "3000:3000"
+    volumes:
+      - dagster_home:/dagster_home
+      - ../data:/data                   # ham veri paylaşımı
+      - ../dbt_project:/app/dbt_project # dbt modeller hot-reload
+    depends_on:
+      - dagster-daemon
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -------------------------------------------------------------------------
+  # 2. Dagster Daemon — Sensor ve schedule çalıştırıcı
+  # -------------------------------------------------------------------------
+  dagster-daemon:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    container_name: climate_dagster_daemon
+    <<: *common-env
+    command: dagster-daemon run -w /app/orchestration/workspace.yaml
+    volumes:
+      - dagster_home:/dagster_home
+      - ../data:/data
+      - ../dbt_project:/app/dbt_project
+    restart: unless-stopped
+
+  # -------------------------------------------------------------------------
+  # 3. Streamlit Dashboard
+  # -------------------------------------------------------------------------
+  streamlit:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    container_name: climate_streamlit
+    <<: *common-env
+    command: >
+      streamlit run /app/dashboard/app.py
+      --server.port=8501
+      --server.address=0.0.0.0
+      --server.headless=true
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../data:/data
+      - ../dashboard:/app/dashboard
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ---------------------------------------------------------------------------
+# Named volumes
+# ---------------------------------------------------------------------------
+volumes:
+  dagster_home:
+    driver: local

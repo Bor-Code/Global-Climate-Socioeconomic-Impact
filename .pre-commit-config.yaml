@@ -1,0 +1,51 @@
+repos:
+  # ---------------------------------------------------------------------------
+  # 1. Ruff — lint + format (flake8 + isort + black tek araçta)
+  #    Neden ruff? mypy/black/flake8 zincirini tek araçla değiştiriyor,
+  #    Rust tabanlı olduğu için 10-100× hızlı.
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.7
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # ---------------------------------------------------------------------------
+  # 2. Temel dosya kalitesi kontrolleri
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=10240"]   # 10 MB üzeri dosyaları engelle (ham veri etc.)
+      - id: debug-statements       # print/breakpoint commit'e girmesin
+      - id: no-commit-to-branch
+        args: ["--branch", "main"] # main'e direkt push engeli
+
+  # ---------------------------------------------------------------------------
+  # 3. Secrets scanner — yanlışlıkla API key commit'ini engeller
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+
+  # ---------------------------------------------------------------------------
+  # 4. dbt — SQL lint (sqlfluff opsiyonel, ağır olduğu için devre dışı bırakıldı)
+  #    Aktifleştirmek için aşağıdaki bloğun başındaki # işaretlerini kaldır.
+  # ---------------------------------------------------------------------------
+  # - repo: https://github.com/sqlfluff/sqlfluff
+  #   rev: 3.1.0
+  #   hooks:
+  #     - id: sqlfluff-lint
+  #       args: [--dialect, duckdb]
+  #     - id: sqlfluff-fix
+  #       args: [--dialect, duckdb]

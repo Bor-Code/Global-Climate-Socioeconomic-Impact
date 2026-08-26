@@ -1,0 +1,8 @@
+# =============================================================================
+# Dagster workspace.yaml
+# Faz 7'de tam pipeline tanımları eklenecek.
+# =============================================================================
+load_from:
+  - python_file:
+      relative_path: dags/climate_pipeline.py
+      location_name: climate_wellbeing_pipeline

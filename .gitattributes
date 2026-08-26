@@ -1,0 +1,5 @@
+# Git line ending konfigürasyonu
+# Windows'ta LF → CRLF dönüşümü uyarılarını önle
+[core]
+    autocrlf = input
+    eol = lf
