@@ -1,7 +1,4 @@
-from pathlib import Path
-
 import pytest
-
 from analyses.src import (
     ANALYSIS_END_YEAR,
     ANALYSIS_START_YEAR,
@@ -13,7 +10,6 @@ from analyses.src import (
 
 
 class TestProjectConstants:
-
     def test_random_seed_is_integer(self):
         assert isinstance(RANDOM_SEED, int)
 
@@ -30,7 +26,6 @@ class TestProjectConstants:
 
 
 class TestProjectStructure:
-
     def test_project_root_exists(self):
         assert PROJECT_ROOT.exists()
 
@@ -58,7 +53,6 @@ class TestProjectStructure:
 
 
 class TestCountryOverridesFormat:
-
     @pytest.fixture
     def overrides_path(self):
         return EXTERNAL_DIR / "country_overrides.csv"

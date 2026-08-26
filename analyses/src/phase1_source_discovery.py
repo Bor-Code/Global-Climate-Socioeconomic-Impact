@@ -1,5 +1,4 @@
 import json
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -78,7 +77,9 @@ def probe_whr_official():
     for url in urls_to_try:
         try:
             resp = requests.head(url, timeout=10)
-            results.append({"url": url, "status_code": resp.status_code, "accessible": resp.status_code < 400})
+            results.append(
+                {"url": url, "status_code": resp.status_code, "accessible": resp.status_code < 400}
+            )
         except Exception as e:
             results.append({"url": url, "accessible": False, "error": str(e)})
     return results
@@ -168,7 +169,9 @@ def main():
 
     print("\n[2/6] World Bank country list...")
     wb_countries = probe_wb_country_list()
-    print(f"  Total WB entities: {wb_countries.get('total_entities')} | keys={wb_countries.get('sample_keys', [])[:6]}")
+    print(
+        f"  Total WB entities: {wb_countries.get('total_entities')} | keys={wb_countries.get('sample_keys', [])[:6]}"
+    )
 
     print("\n[3/6] World Happiness Report (Kaggle mirror)...")
     whr_result = probe_whr_kaggle()
@@ -181,15 +184,21 @@ def main():
 
     print("\n[5/6] Berkeley Earth S3...")
     be_result = probe_berkeley_earth()
-    print(f"  Accessible: {be_result.get('accessible')} | fallback: {be_result.get('fallback', '-')}")
+    print(
+        f"  Accessible: {be_result.get('accessible')} | fallback: {be_result.get('fallback', '-')}"
+    )
 
     print("\n[6/6] Our World in Data CO2 (primary CO2 source)...")
     owid_result = probe_owid_co2()
-    print(f"  Status: {owid_result.get('status')} | columns: {owid_result.get('column_count')} | sample: {owid_result.get('columns', [])[:8]}")
+    print(
+        f"  Status: {owid_result.get('status')} | columns: {owid_result.get('column_count')} | sample: {owid_result.get('columns', [])[:8]}"
+    )
 
     print("\n[7/7] Determining analysis window...")
     window = determine_analysis_window(wb_results, whr_result, owid_result)
-    print(f"  Window: {window['recommended_start']}-{window['recommended_end']} ({window['window_years']} years)")
+    print(
+        f"  Window: {window['recommended_start']}-{window['recommended_end']} ({window['window_years']} years)"
+    )
     for issue in window["issues"]:
         print(f"  WARNING: {issue}")
 
