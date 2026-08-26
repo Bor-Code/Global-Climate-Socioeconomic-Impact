@@ -1,0 +1,222 @@
+{
+  "generated_at": "2026-08-26T20:42:17.148109",
+  "worldbank_indicators": {
+    "NY.GDP.PCAP.CD": {
+      "label": "GDP per capita (current USD)",
+      "total_records_2000_2023": 6360,
+      "sample_keys": [
+        "indicator",
+        "country",
+        "countryiso3code",
+        "date",
+        "value",
+        "unit",
+        "obs_status",
+        "decimal"
+      ],
+      "sample_value": 1571.13270407815,
+      "sample_country": "Africa Eastern and Southern",
+      "sample_date": "2023",
+      "status": "ok"
+    },
+    "SI.POV.GINI": {
+      "label": "Gini index",
+      "total_records_2000_2023": 6360,
+      "sample_keys": [
+        "indicator",
+        "country",
+        "countryiso3code",
+        "date",
+        "value",
+        "unit",
+        "obs_status",
+        "decimal"
+      ],
+      "sample_value": null,
+      "sample_country": "Africa Eastern and Southern",
+      "sample_date": "2023",
+      "status": "ok"
+    },
+    "SL.UEM.TOTL.ZS": {
+      "label": "Unemployment rate (%)",
+      "total_records_2000_2023": 6360,
+      "sample_keys": [
+        "indicator",
+        "country",
+        "countryiso3code",
+        "date",
+        "value",
+        "unit",
+        "obs_status",
+        "decimal"
+      ],
+      "sample_value": 7.67654773372157,
+      "sample_country": "Africa Eastern and Southern",
+      "sample_date": "2023",
+      "status": "ok"
+    },
+    "EN.ATM.CO2E.PC": {
+      "label": "CO2 per capita (metric tons) - WB",
+      "status": "error",
+      "error": "list index out of range"
+    },
+    "EN.CLC.MDAT.ZS": {
+      "label": "Mean dryland area - climate proxy (WB)",
+      "total_records_2000_2023": 6360,
+      "sample_keys": [
+        "indicator",
+        "country",
+        "countryiso3code",
+        "date",
+        "value",
+        "unit",
+        "obs_status",
+        "decimal"
+      ],
+      "sample_value": null,
+      "sample_country": "Africa Eastern and Southern",
+      "sample_date": "2023",
+      "status": "ok"
+    },
+    "SP.POP.TOTL": {
+      "label": "Total population",
+      "total_records_2000_2023": 6360,
+      "sample_keys": [
+        "indicator",
+        "country",
+        "countryiso3code",
+        "date",
+        "value",
+        "unit",
+        "obs_status",
+        "decimal"
+      ],
+      "sample_value": 750491370,
+      "sample_country": "Africa Eastern and Southern",
+      "sample_date": "2023",
+      "status": "ok"
+    }
+  },
+  "worldbank_country_list": {
+    "status": "error",
+    "error": "list index out of range"
+  },
+  "whr_kaggle_mirror": {
+    "status": "error",
+    "error": "404 Client Error: Not Found for url: https://raw.githubusercontent.com/rashida048/Datasets/master/World_Happiness_Report_2021.csv"
+  },
+  "whr_official_accessibility": [
+    {
+      "url": "https://happiness-report.s3.amazonaws.com/2023/DataForFigure2.1WHR2023.xls",
+      "status_code": 403,
+      "accessible": false
+    },
+    {
+      "url": "https://worldhappiness.report/ed/2023/",
+      "status_code": 301,
+      "accessible": true
+    }
+  ],
+  "berkeley_earth": {
+    "url": "https://berkeley-earth-temperature.s3.amazonaws.com/Global/Land_and_Ocean_summary.txt",
+    "accessible": true,
+    "status_code": 200
+  },
+  "owid_co2": {
+    "source": "Our World in Data CO2 dataset",
+    "url": "https://raw.githubusercontent.com/owid/co2-data/master/owid-co2-data.csv",
+    "columns": [
+      "country",
+      "year",
+      "iso_code",
+      "population",
+      "gdp",
+      "cement_co2",
+      "cement_co2_per_capita",
+      "co2",
+      "co2_growth_abs",
+      "co2_growth_prct",
+      "co2_including_luc",
+      "co2_including_luc_growth_abs",
+      "co2_including_luc_growth_prct",
+      "co2_including_luc_per_capita",
+      "co2_including_luc_per_gdp",
+      "co2_including_luc_per_unit_energy",
+      "co2_per_capita",
+      "co2_per_gdp",
+      "co2_per_unit_energy",
+      "coal_co2",
+      "coal_co2_per_capita",
+      "consumption_co2",
+      "consumption_co2_per_capita",
+      "consumption_co2_per_gdp",
+      "cumulative_cement_co2",
+      "cumulative_co2",
+      "cumulative_co2_including_luc",
+      "cumulative_coal_co2",
+      "cumulative_flaring_co2",
+      "cumulative_gas_co2",
+      "cumulative_luc_co2",
+      "cumulative_oil_co2",
+      "cumulative_other_co2",
+      "energy_per_capita",
+      "energy_per_gdp",
+      "flaring_co2",
+      "flaring_co2_per_capita",
+      "gas_co2",
+      "gas_co2_per_capita",
+      "ghg_excluding_lucf_per_capita",
+      "ghg_per_capita",
+      "land_use_change_co2",
+      "land_use_change_co2_per_capita",
+      "methane",
+      "methane_per_capita",
+      "nitrous_oxide",
+      "nitrous_oxide_per_capita",
+      "oil_co2",
+      "oil_co2_per_capita",
+      "other_co2_per_capita",
+      "other_industry_co2",
+      "primary_energy_consumption",
+      "share_global_cement_co2",
+      "share_global_co2",
+      "share_global_co2_including_luc",
+      "share_global_coal_co2",
+      "share_global_cumulative_cement_co2",
+      "share_global_cumulative_co2",
+      "share_global_cumulative_co2_including_luc",
+      "share_global_cumulative_coal_co2",
+      "share_global_cumulative_flaring_co2",
+      "share_global_cumulative_gas_co2",
+      "share_global_cumulative_luc_co2",
+      "share_global_cumulative_oil_co2",
+      "share_global_cumulative_other_co2",
+      "share_global_flaring_co2",
+      "share_global_gas_co2",
+      "share_global_luc_co2",
+      "share_global_oil_co2",
+      "share_global_other_co2",
+      "share_of_temperature_change_from_ghg",
+      "temperature_change_from_ch4",
+      "temperature_change_from_co2",
+      "temperature_change_from_ghg",
+      "temperature_change_from_n2o",
+      "total_ghg",
+      "total_ghg_excluding_lucf",
+      "trade_co2",
+      "trade_co2_share"
+    ],
+    "column_count": 79,
+    "status": "ok",
+    "note": "country + year + co2 + co2_per_capita + temperature_change_from_co2"
+  },
+  "analysis_window": {
+    "recommended_start": 2005,
+    "recommended_end": 2022,
+    "window_years": 18,
+    "rationale": "WHR starts 2005; WB Gini available from ~2000 but sparse before 2005; CO2 available from 1990",
+    "issues": [
+      "WHR access issue - defaulting to 2005 start based on known availability"
+    ]
+  }
+}
