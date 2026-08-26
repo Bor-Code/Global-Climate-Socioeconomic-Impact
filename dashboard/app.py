@@ -1,39 +1,28 @@
-"""
-dashboard/app.py — Streamlit Dashboard
-Faz 8'de tam olarak implement edilecek; şimdilik başlangıç iskeleti.
-"""
-
 import streamlit as st
 
-# ---------------------------------------------------------------------------
-# Sayfa konfigürasyonu — ilk Streamlit komutu olmalı
-# ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="İklim & Ekonomik Refah Analizi",
+    page_title="Climate Change & Economic Wellbeing Analysis",
     page_icon="🌍",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ---------------------------------------------------------------------------
-# Geçici placeholder içerik
-# ---------------------------------------------------------------------------
-st.title("🌍 İklim Değişimi & Küresel Ekonomik/Sosyal Refah")
-st.subheader("Çapraz Etki Analizi Dashboard")
+st.title("Climate Change & Global Economic / Social Wellbeing")
+st.subheader("Cross-Impact Analysis Dashboard")
 
 st.info(
-    "🚧 **Geliştirme Aşaması** — Bu dashboard Faz 8'de tam olarak implement edilecek.\n\n"
-    "Planlanan özellikler:\n"
-    "- Ülke bazlı iklim & refah karşılaştırması\n"
-    "- Zaman serisi trend grafikleri (2005-2022)\n"
-    "- Küme haritası (dünya haritası üzerinde renk kodlu)\n"
-    "- Panel regresyon sonuçları görselleştirmesi"
+    "**Under Development** — This dashboard will be fully implemented in Phase 8.\n\n"
+    "Planned features:\n"
+    "- Country-level climate & wellbeing comparison\n"
+    "- Time series trend charts (2005–2022)\n"
+    "- Cluster map (choropleth on world map)\n"
+    "- Panel regression results visualization"
 )
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Kapsanan Ülke", "~150", help="Tüm kaynaklarda ortak ülkeler")
+    st.metric("Countries Covered", "~140", help="Countries present in all sources")
 with col2:
-    st.metric("Analiz Penceresi", "2005-2022", help="World Happiness Report başlangıcı")
+    st.metric("Analysis Window", "2005–2022", help="Bounded by WHR availability")
 with col3:
-    st.metric("Veri Kaynağı", "3", help="World Bank, Berkeley Earth, WHR")
+    st.metric("Data Sources", "4", help="World Bank, OWID CO2, Berkeley Earth, WHR")

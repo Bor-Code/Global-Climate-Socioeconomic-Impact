@@ -4,9 +4,6 @@ config-version: 2
 
 profile: climate_wellbeing
 
-# ---------------------------------------------------------------------------
-# Model path tanımları
-# ---------------------------------------------------------------------------
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -17,29 +14,17 @@ snapshot-paths: ["snapshots"]
 target-path: "target"
 clean-targets: ["target", "dbt_packages"]
 
-# ---------------------------------------------------------------------------
-# Model konfigürasyonları — katman bazlı materializasyon stratejisi
-# ---------------------------------------------------------------------------
 models:
   climate_wellbeing:
-
-    # staging: view — her run'da taze, depolama maliyeti yok
     staging:
       +materialized: view
       +schema: staging
-
-    # intermediate: ephemeral — sadece mart build sırasında geçici materialize
     intermediate:
       +materialized: ephemeral
-
-    # marts: table — analiz ve dashboard için kalıcı, optimize edilmiş tablo
     marts:
       +materialized: table
       +schema: marts
 
-# ---------------------------------------------------------------------------
-# Seed konfigürasyonu — crosswalk tabloları için
-# ---------------------------------------------------------------------------
 seeds:
   climate_wellbeing:
     +schema: raw
@@ -49,9 +34,6 @@ seeds:
         iso_alpha3: varchar
         canonical_name: varchar
 
-# ---------------------------------------------------------------------------
-# Kaynak freshness uyarı eşikleri (Faz 3'te sources.yml ile detaylandırılacak)
-# ---------------------------------------------------------------------------
 sources:
   climate_wellbeing:
     +loaded_at_field: _loaded_at

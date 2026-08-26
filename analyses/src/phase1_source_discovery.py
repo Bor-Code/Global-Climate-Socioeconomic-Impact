@@ -135,7 +135,7 @@ def determine_analysis_window(wb_results, whr_result, owid_result):
 
     gini = wb_results.get("SI.POV.GINI", {})
     if gini.get("total_records_2000_2023", 0) and gini["total_records_2000_2023"] < 500:
-        issues.append("Gini data sparse — will require imputation strategy in Phase 4")
+        issues.append("Gini data sparse - will require imputation strategy in Phase 4")
 
     return {
         "recommended_start": start,
@@ -189,7 +189,7 @@ def main():
 
     print("\n[7/7] Determining analysis window...")
     window = determine_analysis_window(wb_results, whr_result, owid_result)
-    print(f"  Window: {window['recommended_start']}–{window['recommended_end']} ({window['window_years']} years)")
+    print(f"  Window: {window['recommended_start']}-{window['recommended_end']} ({window['window_years']} years)")
     for issue in window["issues"]:
         print(f"  WARNING: {issue}")
 
@@ -204,7 +204,7 @@ def main():
         "analysis_window": window,
     }
 
-    out_path = OUTPUT_DIR / "faz1_kaynak_dogrulama.json"
+    out_path = OUTPUT_DIR / "phase1_source_validation.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 

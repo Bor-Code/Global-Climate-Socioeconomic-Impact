@@ -1,39 +1,23 @@
-# =============================================================================
-# dbt profiles.yml — DuckDB bağlantı profilleri
-# Bu dosya dbt_project/ içinde tutulur (standart dışı ama monorepo için pratik).
-# CI/CD: DBT_PROFILES_DIR env değişkeni ile bu dizin işaret edilir.
-# =============================================================================
-
 climate_wellbeing:
   target: dev
 
   outputs:
-    # -------------------------------------------------------------------------
-    # dev — local geliştirme, dosya tabanlı DuckDB
-    # -------------------------------------------------------------------------
     dev:
       type: duckdb
       path: "{{ env_var('DUCKDB_PATH', '../data/climate_wellbeing.duckdb') }}"
       threads: 4
-      # DuckDB extensions (ülke adı normalizasyonu için fts, spatial için)
       extensions:
-        - httpfs      # S3/URL'den okuma (opsiyonel ama kullanışlı)
-        - json        # JSON parsing
+        - httpfs
+        - json
       settings:
         memory_limit: "4GB"
         temp_directory: "/tmp/duckdb_temp"
 
-    # -------------------------------------------------------------------------
-    # ci — GitHub Actions içinde in-memory, dosya yazma yok
-    # -------------------------------------------------------------------------
     ci:
       type: duckdb
       path: ":memory:"
       threads: 2
 
-    # -------------------------------------------------------------------------
-    # prod — ileride remote DuckDB veya MotherDuck için placeholder
-    # -------------------------------------------------------------------------
     prod:
       type: duckdb
       path: "{{ env_var('DUCKDB_PATH_PROD', '../data/climate_wellbeing_prod.duckdb') }}"
