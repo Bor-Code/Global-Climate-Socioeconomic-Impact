@@ -1,5 +1,24 @@
-# Git line ending konfigürasyonu
-# Windows'ta LF → CRLF dönüşümü uyarılarını önle
-[core]
-    autocrlf = input
-    eol = lf
+# Cross-platform line ending normalization
+# Tüm metin dosyaları repository'de LF olarak saklanır
+* text=auto eol=lf
+
+# Açıkça metin olarak işaretlenenler
+*.py    text eol=lf
+*.sql   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.toml  text eol=lf
+*.md    text eol=lf
+*.csv   text eol=lf
+*.txt   text eol=lf
+*.json  text eol=lf
+*.sh    text eol=lf
+
+# Binary dosyalar — line ending dönüşümü yapma
+*.png   binary
+*.jpg   binary
+*.gif   binary
+*.ico   binary
+*.zip   binary
+*.gz    binary
+*.duckdb binary
