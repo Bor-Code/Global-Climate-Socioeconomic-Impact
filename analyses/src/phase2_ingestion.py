@@ -102,24 +102,24 @@ def load_to_duckdb():
     # Check for WHR
     whr_files = list((RAW_DIR / "whr").glob("*.xls*")) + list((RAW_DIR / "whr").glob("*.csv"))
     if whr_files:
-        latest = sorted(whr_files)[-1]
-        print(f"  Loading {latest.name} into raw.world_happiness...")
-        conn.execute("DROP TABLE IF EXISTS raw.world_happiness")
-        
-        # Determine if CSV or Excel. Since pandas is needed for excel, we can use DuckDB's spatial extension for excel
-        # or load via pandas. For now, try loading via pandas.
-        if latest.suffix in [".xls", ".xlsx"]:
-            import pandas as pd
-            df = pd.read_excel(latest)
-            conn.execute("CREATE TABLE raw.world_happiness AS SELECT *, ? AS _loaded_at FROM df", [loaded_at])
-        else:
-            conn.execute(
-                f"""
-                CREATE TABLE raw.world_happiness AS
-                SELECT *, '{loaded_at}' AS _loaded_at
-                FROM read_csv_auto('{latest}')
-                """
-            )
+        for file_path in whr_files:
+            year = file_path.stem  # e.g., '2015'
+            table_name = f"world_happiness_{year}"
+            print(f"  Loading {file_path.name} into raw.{table_name}...")
+            conn.execute(f"DROP TABLE IF EXISTS raw.{table_name}")
+            
+            if file_path.suffix in [".xls", ".xlsx"]:
+                import pandas as pd
+                df = pd.read_excel(file_path)
+                conn.execute(f"CREATE TABLE raw.{table_name} AS SELECT *, ? AS _loaded_at FROM df", [loaded_at])
+            else:
+                conn.execute(
+                    f"""
+                    CREATE TABLE raw.{table_name} AS
+                    SELECT *, '{loaded_at}' AS _loaded_at
+                    FROM read_csv_auto('{file_path}')
+                    """
+                )
     else:
         print("  WARNING: No WHR data found in data/raw/whr. Please download it manually.")
 
@@ -133,7 +133,7 @@ def main():
     download_owid()
     
     print("\nNote: Berkeley Earth will be ingested directly via dbt/DuckDB external tables or a dedicated script in Phase 3 due to complexity.")
-    print("Note: WHR dataset must be downloaded manually due to strict anti-bot protection on the official S3 bucket.")
+    print("Note: WHR dataset must be downloaded manually from Kaggle (e.g., 'World Happiness Report' dataset) and placed in data/raw/whr/ as a CSV file.")
     
     load_to_duckdb()
 
