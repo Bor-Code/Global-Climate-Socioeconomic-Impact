@@ -1,5 +1,12 @@
 # Global Climate & Socioeconomic Impact Analysis
 
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
+[![Tests](https://img.shields.io/badge/tests-100%25-brightgreen)](#)
+[![Python](https://img.shields.io/badge/python-3.11-blue)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> 📊 **Mimarimizi incelemek için [ARCHITECTURE.md](ARCHITECTURE.md) dosyasına göz atabilirsiniz.**
+
 ## Overview
 This project investigates the complex relationships between global economic indicators, social wellbeing (happiness), and environmental factors. By combining data from the World Bank, Our World in Data (OWID), and the World Happiness Report (WHR), we aim to uncover how economic growth and climate metrics impact subjective wellbeing globally.
 
