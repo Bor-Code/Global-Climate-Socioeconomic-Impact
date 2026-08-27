@@ -93,3 +93,13 @@ To serve the trained Random Forest model as a REST API:
 uv run uvicorn api.main:app --reload
 ```
 Once the server is running, navigate to [http://localhost:8000/docs](http://localhost:8000/docs) to access the interactive Swagger UI and test the predictions.
+
+## Tek Tuşla Kurulum (Docker)
+This project is fully containerized. You can run all services simultaneously (Dagster, Streamlit, FastAPI) with a single command:
+```bash
+docker compose -f docker/docker-compose.yml up --build -d
+```
+Services will be available at:
+- **Streamlit Dashboard:** http://localhost:8501
+- **FastAPI AI Server:** http://localhost:8000
+- **Dagster Webserver:** http://localhost:3000
