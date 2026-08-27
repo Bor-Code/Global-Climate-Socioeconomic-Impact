@@ -1,11 +1,9 @@
 import json
 import urllib.request
 from datetime import datetime
-from pathlib import Path
 
 import duckdb
 import requests
-
 from analyses.src import PROJECT_ROOT
 
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -65,7 +63,7 @@ def load_to_duckdb():
     loaded_at = datetime.now().isoformat()
 
     # Load World Bank JSONs
-    for code, name in WB_INDICATORS.items():
+    for _code, name in WB_INDICATORS.items():
         files = list((RAW_DIR / "worldbank").glob(f"{name}_*.json"))
         if not files:
             continue
@@ -75,7 +73,7 @@ def load_to_duckdb():
         conn.execute(
             f"""
             CREATE TABLE raw.{name} AS
-            SELECT 
+            SELECT
                 country.id AS countryiso3code,
                 country.value AS country_name,
                 date,
@@ -107,11 +105,15 @@ def load_to_duckdb():
             table_name = f"world_happiness_{year}"
             print(f"  Loading {file_path.name} into raw.{table_name}...")
             conn.execute(f"DROP TABLE IF EXISTS raw.{table_name}")
-            
+
             if file_path.suffix in [".xls", ".xlsx"]:
                 import pandas as pd
-                df = pd.read_excel(file_path)
-                conn.execute(f"CREATE TABLE raw.{table_name} AS SELECT *, ? AS _loaded_at FROM df", [loaded_at])
+
+                pd.read_excel(file_path)
+                conn.execute(
+                    f"CREATE TABLE raw.{table_name} AS SELECT *, ? AS _loaded_at FROM df",
+                    [loaded_at],
+                )
             else:
                 conn.execute(
                     f"""
@@ -131,10 +133,14 @@ def main():
     print("=== PHASE 2: Data Ingestion ===")
     download_worldbank()
     download_owid()
-    
-    print("\nNote: Berkeley Earth will be ingested directly via dbt/DuckDB external tables or a dedicated script in Phase 3 due to complexity.")
-    print("Note: WHR dataset must be downloaded manually from Kaggle (e.g., 'World Happiness Report' dataset) and placed in data/raw/whr/ as a CSV file.")
-    
+
+    print(
+        "\nNote: Berkeley Earth will be ingested directly via dbt/DuckDB external tables or a dedicated script in Phase 3 due to complexity."
+    )
+    print(
+        "Note: WHR dataset must be downloaded manually from Kaggle (e.g., 'World Happiness Report' dataset) and placed in data/raw/whr/ as a CSV file."
+    )
+
     load_to_duckdb()
 
 
