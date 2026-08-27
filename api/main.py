@@ -9,8 +9,14 @@ from prometheus_fastapi_instrumentator import Instrumentator
 import duckdb
 from google import genai
 from dotenv import load_dotenv
+import redis
+import json
+import hashlib
 
 load_dotenv()
+
+# Setup Redis
+redis_client = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 # Setup the FastAPI app
 app = FastAPI(
@@ -87,7 +93,15 @@ def predict_happiness(features: HappinessFeatures):
 
 @app.get("/api/data/summary")
 def get_data_summary():
-    """Returns basic metrics from DuckDB for the frontend."""
+    """Returns basic metrics from DuckDB for the frontend, cached via Redis."""
+    cache_key = "data_summary"
+    try:
+        cached = redis_client.get(cache_key)
+        if cached:
+            return json.loads(cached)
+    except Exception:
+        pass # Ignore redis connection errors during local dev
+
     if not db_path.exists():
         raise HTTPException(status_code=404, detail="Database not found.")
     
@@ -102,13 +116,20 @@ def get_data_summary():
         recent_year = df["year"].max()
         filtered_df = df[df["year"] == recent_year]
         
-        return {
+        result = {
             "year": int(recent_year),
             "avg_happiness": round(filtered_df["happiness_score"].mean(), 2),
             "avg_gdp": round(filtered_df["gdp_per_capita"].mean(), 2),
             "avg_co2": round(filtered_df["co2_per_capita"].mean(), 2),
             "countries_count": len(filtered_df["country_name"].unique())
         }
+        
+        try:
+            redis_client.setex(cache_key, 3600, json.dumps(result)) # Cache for 1 hour
+        except Exception:
+            pass
+            
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
