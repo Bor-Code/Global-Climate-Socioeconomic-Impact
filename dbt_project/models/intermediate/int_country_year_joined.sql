@@ -1,6 +1,5 @@
 with happiness as (
     select
-        -- Harmonize country names based on the notebook logic
         case
             when country = 'United States' then 'United States of America'
             when country = 'Congo (Kinshasa)' then 'Democratic Republic of the Congo'
@@ -50,4 +49,4 @@ select
     c.ghg_per_capita
 from happiness h
 left join worldbank w on h.country_name = w.country_name and h.year = w.year
-left join climate c on w.iso_code = c.iso_code and h.year = c.year
+left join climate c on h.country_name = c.country_name and h.year = c.year
