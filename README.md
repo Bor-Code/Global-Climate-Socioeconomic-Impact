@@ -110,3 +110,24 @@ Services will be available at:
 - **Streamlit Dashboard:** http://localhost:8501
 - **FastAPI AI Server:** http://localhost:8000
 - **Dagster Webserver:** http://localhost:3000
+
+---
+
+## 🏗️ Architecture & Tech Stack Deep Dive (Lead Engineer's Notes)
+
+This project isn't just a data science script; it's a fully-fledged, production-ready Data Engineering & AI ecosystem built using Silicon Valley standards. Here is the rationale behind our architectural decisions:
+
+### 1. Why DuckDB over PostgreSQL?
+For analytical workloads (OLAP) processing millions of rows of climate and economic data, traditional row-based databases like PostgreSQL are too slow. We chose **DuckDB** because it's an in-process, columnar database that operates at blazing speeds directly on dataframes (Pandas/Polars) without the network overhead of a traditional database server. It seamlessly integrates with our `dbt` pipelines.
+
+### 2. Why Dagster over Airflow?
+While Apache Airflow is the industry standard for task-based orchestration, we chose **Dagster** for its *Software-Defined Asset (SDA)* approach. Instead of focusing on "tasks" (e.g., *Run Script A, then Script B*), Dagster focuses on the "data assets" being produced (e.g., *Cleaned Climate Table, Random Forest Model*). This paradigm makes data lineage transparent, testing significantly easier, and local development a breeze.
+
+### 3. The "SQL Agent" GenAI Chatbot
+We integrated the **Google Gemini API** not just as a generic conversational bot, but as an advanced **SQL Agent**. By feeding the LLM the DuckDB schema context, it dynamically translates natural language questions into executable DuckDB queries, runs them against the warehouse in `read_only` mode, and formulates data-backed insights for the user in real-time.
+
+### 4. DevOps & Cloud Infrastructure
+- **Containerization:** The entire polyglot stack (Dagster, Streamlit, FastAPI, Prometheus, Grafana) is containerized via `docker-compose`.
+- **Infrastructure as Code (IaC):** We wrote **Terraform** scripts to autonomously provision an AWS EC2 instance, install Docker, and deploy the application.
+- **Continuous Deployment (CD):** Using **GitHub Actions**, any push to the `main` branch triggers an automated `terraform apply` workflow, ensuring zero-touch deployments (Netflix/Spotify style CD).
+- **Observability:** We instrumented the FastAPI ML service with **Prometheus** and **Grafana** to monitor real-time API metrics, endpoint latency, and request volumes, ensuring enterprise-grade reliability.
