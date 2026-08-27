@@ -77,3 +77,16 @@ fig_forecast.add_trace(go.Scatter(x=forecast_years, y=forecast, mode='lines+mark
 
 fig_forecast.update_layout(title='Global Happiness Score Forecast (2025-2030)', xaxis_title='Year', yaxis_title='Average Happiness Score', template='plotly_white')
 fig_forecast.write_image("docs/forecast.png", width=1000, height=500)
+
+# 5. CO2 Impact Boxplot
+df_climate = df_latest.drop_nulls(subset=['co2_per_capita', 'happiness_score']).to_pandas()
+median_co2 = df_climate['co2_per_capita'].median()
+df_climate['emission_group'] = np.where(df_climate['co2_per_capita'] > median_co2, 'High Emitters', 'Low Emitters')
+
+fig_co2 = px.box(
+    df_climate, x="emission_group", y="happiness_score", color="emission_group",
+    title="Wellbeing Variance: High vs Low CO2 Emitters",
+    labels={"emission_group": "Emission Group", "happiness_score": "Happiness Score"},
+    color_discrete_map={"High Emitters": "crimson", "Low Emitters": "seagreen"}
+)
+fig_co2.write_image("docs/co2_impact.png", width=1000, height=500)
