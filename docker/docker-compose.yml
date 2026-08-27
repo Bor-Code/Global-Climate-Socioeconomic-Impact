@@ -90,3 +90,23 @@ volumes:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: climate_prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    depends_on:
+      - fastapi
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: climate_grafana
+    ports:
+      - "3001:3000"
+    restart: unless-stopped
+    depends_on:
+      - prometheus
