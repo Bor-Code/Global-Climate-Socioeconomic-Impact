@@ -140,8 +140,8 @@ with col4:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Tabs
-tab1, tab2, tab3 = st.tabs(
-    ["🌍 Overview & Maps", "😷 COVID-19 Resilience", "🏭 Climate Impact (CO2)"]
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["🌍 Overview & Maps", "😷 COVID-19 Resilience", "🏭 Climate Impact (CO2)", "🤖 Ask AI (Chat)"]
 )
 
 # TAB 1: OVERVIEW
@@ -231,3 +231,76 @@ with tab3:
         st.plotly_chart(fig_box, use_container_width=True)
     else:
         st.info("Not enough data to calculate CO2 impact for this selection.")
+
+# TAB 4: ASK AI
+with tab4:
+    st.markdown("### 🤖 Chat with your Data (Powered by Gemini API)")
+    st.markdown(
+        "Ask any question about the climate and economic data, and the AI will analyze the database to answer it."
+    )
+
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if not gemini_key or gemini_key == "your_gemini_api_key_here":
+        st.warning(
+            "⚠️ GEMINI_API_KEY is not set in your .env file. Please add it to use the AI Chatbot."
+        )
+    else:
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+
+        if prompt := st.chat_input("Ask a question (e.g. Which country has the highest GDP?)"):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+                with st.spinner("Analyzing database..."):
+                    try:
+                        from google import genai
+
+                        client = genai.Client(api_key=gemini_key)
+
+                        # Generate SQL Query
+                        schema_info = "Table: main_marts.fct_climate_economy\nColumns: country_name (VARCHAR), year (INTEGER), happiness_score (DOUBLE), gdp_per_capita (DOUBLE), social_support (DOUBLE), life_expectancy (DOUBLE), freedom (DOUBLE), corruption (DOUBLE), co2_per_capita (DOUBLE)"
+                        prompt_sql = f"You are a Data Analyst. Based on this DuckDB schema:\n{schema_info}\n\nWrite ONLY a valid DuckDB SQL query to answer this user question: '{prompt}'. Do not include markdown formatting like ```sql, just the raw query."
+
+                        response_sql = client.models.generate_content(
+                            model="gemini-2.5-flash",
+                            contents=prompt_sql,
+                        )
+                        sql_query = (
+                            response_sql.text.strip()
+                            .replace("```sql", "")
+                            .replace("```", "")
+                            .strip()
+                        )
+
+                        # Execute Query
+                        project_root = Path(__file__).parent.parent
+                        db_path = project_root / "data" / "climate_wellbeing.duckdb"
+                        conn_ai = duckdb.connect(str(db_path), read_only=True)
+                        result_df = conn_ai.execute(sql_query).df()
+                        conn_ai.close()
+
+                        # Generate Natural Language Response
+                        prompt_nl = f"The user asked: '{prompt}'.\nThe database returned this data:\n{result_df.to_string()}\n\nExplain this data to the user in a friendly, concise, and helpful way."
+                        response_nl = client.models.generate_content(
+                            model="gemini-2.5-flash",
+                            contents=prompt_nl,
+                        )
+                        answer = response_nl.text
+                        st.markdown(answer)
+                        with st.expander("View SQL Query"):
+                            st.code(sql_query, language="sql")
+                        st.session_state.messages.append({"role": "assistant", "content": answer})
+                    except Exception as e:
+                        st.error(f"Error: {e}")
