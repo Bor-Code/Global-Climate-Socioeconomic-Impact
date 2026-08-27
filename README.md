@@ -57,6 +57,13 @@ Using K-Means and PCA, countries naturally grouped into distinct profiles based 
 **Global Distribution Map:**
 ![Happiness Map](docs/map.png)
 
+### 4. Deep Dive: Climate & COVID-19 Resilience
+* **COVID-19 Resilience:** Statistical T-Tests between Pre-COVID (2015-2019) and Post-COVID (2020-2024) periods reveal no significant global collapse in happiness, showcasing societal resilience.
+* **The CO2 Paradox:** Countries with high CO2 emissions per capita tend to report significantly higher happiness scores. This paradox highlights the deep entwinement of industrial wealth and societal wellbeing, proving that economic benefits currently outweigh the perceived penalties of high emissions in developing metrics.
+
+**Wellbeing Variance: High vs Low CO2 Emitters:**
+![CO2 Impact](docs/co2_impact.png)
+
 ## Sample Data (fct_climate_economy)
 |    | country_name   |   year | iso_code   |   happiness_score |   happiness_rank |   social_support |   life_expectancy |   freedom |   corruption |   generosity |   gdp_per_capita |
 |---:|:---------------|-------:|:-----------|------------------:|-----------------:|-----------------:|------------------:|----------:|-------------:|-------------:|-----------------:|

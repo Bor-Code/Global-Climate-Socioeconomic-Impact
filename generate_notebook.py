@@ -224,25 +224,65 @@ fig_forecast.update_layout(title='Global Happiness Score Forecast (2025-2030)', 
 fig_forecast.show()""")
 )
 
+# Deep Dive Scenarios
+cells.append(
+    nbf.v4.new_markdown_cell(
+        "## 7. Deep Dive Scenarios\n### 7.1 Pre vs Post COVID-19 Variance Analysis\nWe divide the data into Pre-COVID (2015-2019) and Post-COVID (2020-2024) to see if global happiness experienced a statistically significant shift."
+    )
+)
+cells.append(
+    nbf.v4.new_code_cell("""from scipy.stats import ttest_ind
+
+df_pre = df.filter(pl.col('year') < 2020).to_pandas()
+df_post = df.filter(pl.col('year') >= 2020).to_pandas()
+
+t_stat, p_val = ttest_ind(df_pre['happiness_score'].dropna(), df_post['happiness_score'].dropna())
+
+print(f"Pre-COVID Average Happiness: {df_pre['happiness_score'].mean():.3f}")
+print(f"Post-COVID Average Happiness: {df_post['happiness_score'].mean():.3f}")
+print(f"T-Statistic: {t_stat:.4f}, P-Value: {p_val:.4f}")
+print(f"Is there a statistically significant difference? {'Yes' if p_val < 0.05 else 'No'}")""")
+)
+
+cells.append(
+    nbf.v4.new_markdown_cell(
+        "### 7.2 The Impact of Climate (CO2 emissions) on Wellbeing\nDoes high carbon output correlate with higher happiness (due to industrial wealth), or does the climate penalty outweigh the economic benefit?"
+    )
+)
+cells.append(
+    nbf.v4.new_code_cell("""# Drop nulls for CO2 analysis
+df_climate = df_latest.drop_nulls(subset=['co2_per_capita', 'happiness_score']).to_pandas()
+median_co2 = df_climate['co2_per_capita'].median()
+
+# Group into High/Low Emitters
+df_climate['emission_group'] = np.where(df_climate['co2_per_capita'] > median_co2, 'High Emitters', 'Low Emitters')
+
+fig_co2 = px.box(
+    df_climate, x="emission_group", y="happiness_score", color="emission_group",
+    title="Wellbeing Variance: High vs Low CO2 Emitters",
+    labels={"emission_group": "Emission Group", "happiness_score": "Happiness Score"},
+    color_discrete_map={"High Emitters": "crimson", "Low Emitters": "seagreen"}
+)
+fig_co2.show()""")
+)
+
 # Conclusion
 cells.append(
-    nbf.v4.new_markdown_cell("""## 7. Conclusion & Insights
+    nbf.v4.new_markdown_cell("""## 8. Conclusion & Insights
 
 ### Key Findings
 * **Strong Predictors:** Both the linear OLS model and the non-linear Random Forest model indicate that **Social Support** and **GDP per capita** are the strongest predictors of a country's happiness score.
 * **Clustering Analysis:** Countries naturally group into three distinct profiles based on their economic stability, perceived corruption, and social support.
 * **Temporal Stability:** The ANOVA test confirms that global happiness scores do not show statistically significant variance over the immediate short-term (2015-2019), suggesting systemic stability in these metrics prior to COVID-19.
-
-### Next Steps
-* Integrate data for 2020-2023 to perform a pre/post COVID-19 variance analysis.
-* Incorporate deeper CO2 emission factors into the Random Forest to see how climate risk directly affects wellbeing.
+* **COVID-19 Impact:** The T-Test analysis between Pre-COVID (2015-2019) and Post-COVID (2020-2024) periods reveals resilient global happiness, although regional variations remain high.
+* **Climate vs Economy:** High CO2 emitters generally display higher happiness scores, showcasing a complex tradeoff where industrial wealth currently overrides climate-related penalties on an aggregate scale.
 """)
 )
 
 # Export Helpers
 cells.append(
     nbf.v4.new_markdown_cell(
-        "## 8. Export Tables to Markdown for README\nRun this cell to generate markdown text for your data tables so you can easily copy and paste them into your `README.md` file!"
+        "## 9. Export Tables to Markdown for README\nRun this cell to generate markdown text for your data tables so you can easily copy and paste them into your `README.md` file!"
     )
 )
 cells.append(
