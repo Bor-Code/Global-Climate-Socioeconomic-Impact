@@ -42,7 +42,13 @@ corruption         -0.2652      0.660     -0.402      0.689      -1.572       1.
 ===================================================================================
 ```
 
-### 2. Global Clustering & Spatial Distribution
+### 2. Time-Series Forecasting (Holt's Linear Trend)
+We used exponential smoothing to project the global average happiness score for the next 6 years (2025-2030), demonstrating systemic global stability despite upcoming climate and economic shifts.
+
+**Global Happiness Score Forecast (2025-2030):**
+![Happiness Forecast](docs/forecast.png)
+
+### 3. Global Clustering & Spatial Distribution
 Using K-Means and PCA, countries naturally grouped into distinct profiles based on economic stability, perceived corruption, and social support.
 
 **Wealth vs Wellbeing Scatter Analysis:**

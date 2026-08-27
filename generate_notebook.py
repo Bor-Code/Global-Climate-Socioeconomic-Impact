@@ -190,9 +190,43 @@ fig_rf = px.bar(
 fig_rf.show()""")
 )
 
+# Time-Series Forecasting
+cells.append(
+    nbf.v4.new_markdown_cell(
+        "## 6. Time-Series Forecasting\n### 6.1 Forecasting Global Happiness (Holt's Linear Trend)\nWe use exponential smoothing to project the global average happiness score for the next 6 years (2025-2030)."
+    )
+)
+cells.append(
+    nbf.v4.new_code_cell("""from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+# Group by year to get global averages
+global_trends = df.to_pandas().groupby('year').agg({
+    'happiness_score': 'mean'
+}).reset_index().sort_values('year')
+
+ts_data = global_trends['happiness_score'].values
+years = global_trends['year'].values
+
+# Fit Holt's Linear Trend Model
+model_ts = ExponentialSmoothing(ts_data, trend='add', seasonal=None, initialization_method="estimated")
+fit_model = model_ts.fit()
+
+# Forecast next 6 years (2025-2030)
+forecast = fit_model.forecast(6)
+forecast_years = np.arange(2025, 2031)
+
+# Plotting
+fig_forecast = go.Figure()
+fig_forecast.add_trace(go.Scatter(x=years, y=ts_data, mode='lines+markers', name='Historical Global Happiness', line=dict(color='blue', width=3)))
+fig_forecast.add_trace(go.Scatter(x=forecast_years, y=forecast, mode='lines+markers', name='Forecast (2025-2030)', line=dict(color='red', width=3, dash='dash')))
+
+fig_forecast.update_layout(title='Global Happiness Score Forecast (2025-2030)', xaxis_title='Year', yaxis_title='Average Happiness Score', template='plotly_white')
+fig_forecast.show()""")
+)
+
 # Conclusion
 cells.append(
-    nbf.v4.new_markdown_cell("""## 6. Conclusion & Insights
+    nbf.v4.new_markdown_cell("""## 7. Conclusion & Insights
 
 ### Key Findings
 * **Strong Predictors:** Both the linear OLS model and the non-linear Random Forest model indicate that **Social Support** and **GDP per capita** are the strongest predictors of a country's happiness score.
@@ -208,7 +242,7 @@ cells.append(
 # Export Helpers
 cells.append(
     nbf.v4.new_markdown_cell(
-        "## 7. Export Tables to Markdown for README\nRun this cell to generate markdown text for your data tables so you can easily copy and paste them into your `README.md` file!"
+        "## 8. Export Tables to Markdown for README\nRun this cell to generate markdown text for your data tables so you can easily copy and paste them into your `README.md` file!"
     )
 )
 cells.append(
