@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: climate-api
+  labels:
+    app: climate-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: climate-api
+  template:
+    metadata:
+      labels:
+        app: climate-api
+    spec:
+      containers:
+      - name: climate-api
+        image: climate-api:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: climate-secrets
+              key: GEMINI_API_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: climate-api-svc
+spec:
+  selector:
+    app: climate-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
