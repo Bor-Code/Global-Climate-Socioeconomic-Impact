@@ -12,11 +12,27 @@ from dotenv import load_dotenv
 import redis
 import json
 import hashlib
+from kafka import KafkaProducer
+import threading
 
 load_dotenv()
 
 # Setup Redis
 redis_client = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
+
+# Setup Kafka Producer (lazy initialization to avoid crash if kafka is down)
+kafka_producer = None
+def get_kafka_producer():
+    global kafka_producer
+    if kafka_producer is None:
+        try:
+            kafka_producer = KafkaProducer(
+                bootstrap_servers=['kafka:29092'],
+                value_serializer=lambda v: json.dumps(v).encode('utf-8')
+            )
+        except Exception:
+            pass
+    return kafka_producer
 
 # Setup the FastAPI app
 app = FastAPI(
@@ -84,10 +100,21 @@ def predict_happiness(features: HappinessFeatures):
     try:
         input_df = pd.DataFrame([features.dict()])
         prediction = rf_model.predict(input_df)[0]
-        return {
+        
+        result = {
             "predicted_happiness_score": round(float(prediction), 3),
             "features_used": features.dict(),
         }
+        
+        # Publish Event to Kafka
+        producer = get_kafka_producer()
+        if producer:
+            try:
+                producer.send('prediction_events', result)
+            except Exception as e:
+                print(f"Failed to publish to Kafka: {e}")
+                
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
