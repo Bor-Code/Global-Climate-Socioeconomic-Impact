@@ -79,3 +79,10 @@ Using K-Means and PCA, countries naturally grouped into distinct profiles based 
    uv run jupyter notebook
    ```
 3. Open `analyses/Climate_Economic_Wellbeing_Analysis.ipynb` and click **Run All Cells**.
+
+## How to Run the Interactive Dashboard
+To explore the data interactively through our premium Streamlit web application:
+```bash
+uv run streamlit run dashboard/app.py
+```
+This will launch the dashboard locally in your default web browser.
