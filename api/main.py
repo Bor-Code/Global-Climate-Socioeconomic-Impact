@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import pandas as pd
 from pathlib import Path
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # Setup the FastAPI app
 app = FastAPI(
@@ -10,6 +11,9 @@ app = FastAPI(
     description="Predicts a country's Happiness Score based on socio-economic metrics using a trained Random Forest model.",
     version="1.0.0",
 )
+
+# Instrument the app to expose /metrics for Prometheus
+Instrumentator().instrument(app).expose(app)
 
 
 # Define the input schema
