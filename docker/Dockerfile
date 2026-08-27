@@ -28,6 +28,8 @@ COPY dbt_project/ ./dbt_project/
 COPY analyses/ ./analyses/
 COPY dashboard/ ./dashboard/
 COPY orchestration/ ./orchestration/
+COPY api/ ./api/
+COPY models/ ./models/
 COPY .env.example ./.env.example
 
 EXPOSE 3000
