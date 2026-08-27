@@ -86,3 +86,10 @@ To explore the data interactively through our premium Streamlit web application:
 uv run streamlit run dashboard/app.py
 ```
 This will launch the dashboard locally in your default web browser.
+
+## How to Run the Machine Learning API
+To serve the trained Random Forest model as a REST API:
+```bash
+uv run uvicorn api.main:app --reload
+```
+Once the server is running, navigate to [http://localhost:8000/docs](http://localhost:8000/docs) to access the interactive Swagger UI and test the predictions.

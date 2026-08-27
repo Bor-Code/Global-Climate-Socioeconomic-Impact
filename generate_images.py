@@ -7,6 +7,7 @@ import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+import joblib
 
 # Set global seaborn style for beautiful plots
 sns.set_theme(style="whitegrid", palette="muted")
@@ -77,6 +78,9 @@ y = df_reg["happiness_score"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
 rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
 rf_model.fit(X_train, y_train)
+
+# Save the trained model for the FastAPI application
+joblib.dump(rf_model, "models/rf_model.pkl")
 
 plt.figure(figsize=(10, 6))
 importances = rf_model.feature_importances_
