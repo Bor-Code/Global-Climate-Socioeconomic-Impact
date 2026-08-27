@@ -92,35 +92,18 @@ sources:
 
   - name: raw_happiness
     schema: raw
-    description: "World Happiness Report — Gallup World Poll, country-year 2005-2022"
+    description: "World Happiness Report — Gallup World Poll, country-year 2015-2019"
     tables:
-      - name: world_happiness
-        description: "WHR panel data — Life Ladder score and sub-components"
+      - name: world_happiness_2015
         loaded_at_field: _loaded_at
-        freshness:
-          warn_after: {count: 365, period: day}
-          error_after: {count: 730, period: day}
-        columns:
-          - name: country_name
-            description: "Country name — WHR uses non-standard names, crosswalk required"
-            tests: [not_null]
-          - name: year
-            tests: [not_null]
-          - name: life_ladder
-            description: "Happiness score on Cantril ladder scale (0-10); primary dependent variable"
-            tests: [not_null]
-          - name: log_gdp_per_capita
-            description: "Log of GDP per capita in PPP"
-          - name: social_support
-            description: "Binary question average: 'do you have someone to count on in trouble?' (0-1)"
-          - name: healthy_life_expectancy_at_birth
-            description: "Years of healthy life expectancy at birth"
-          - name: freedom_to_make_life_choices
-            description: "Average binary question: satisfaction with freedom (0-1)"
-          - name: generosity
-            description: "Residual of regressing national average of donation on log GDP per capita"
-          - name: perceptions_of_corruption
-            description: "Average of corruption perception questions (0-1, lower = more corrupt)"
+      - name: world_happiness_2016
+        loaded_at_field: _loaded_at
+      - name: world_happiness_2017
+        loaded_at_field: _loaded_at
+      - name: world_happiness_2018
+        loaded_at_field: _loaded_at
+      - name: world_happiness_2019
+        loaded_at_field: _loaded_at
 
   - name: raw_berkeley
     schema: raw

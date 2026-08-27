@@ -1,142 +1,60 @@
-# Climate Change & Global Economic-Social Wellbeing
-## Cross-Impact Analysis
+# Global Climate & Socioeconomic Impact Analysis
 
-> **Status:** 🚧 Active Development — Phase 1 (Data Source Validation) in progress.
+## Overview
+This project investigates the complex relationships between global economic indicators, social wellbeing (happiness), and environmental factors. By combining data from the World Bank, Our World in Data (OWID), and the World Happiness Report (WHR), we aim to uncover how economic growth and climate metrics impact subjective wellbeing globally.
 
----
-
-## Abstract
-
-This project investigates the relationship between climate variables (temperature anomaly, CO2 emissions) and country-level economic indicators (GDP per capita, Gini coefficient) and social wellbeing (World Happiness Report scores) using panel data econometrics. Countries are clustered into similar risk/wellbeing profiles using unsupervised learning. All correlational findings are clearly distinguished from causal claims; Granger causality tests are used to discuss potential causal directions.
-
----
-
-## Problem Statement & Motivation
-
-Climate change is increasingly recognized as a threat multiplier affecting economic output, inequality, and human wellbeing. Yet rigorous, reproducible, country-year panel analyses that simultaneously integrate climate, economic, and wellbeing data remain scarce in open-source form. This project builds a production-grade analytics pipeline to explore these cross-domain relationships transparently.
-
-**Out of scope:** real-time streaming, sub-national analysis, and definitive causal claims.
-
----
-
-## Quick Start
-
-```bash
-git clone https://github.com/Bor-Code/Global-Climate-Socioeconomic-Impact.git
-cd Global-Climate-Socioeconomic-Impact
-
-cp .env.example .env
-
-uv venv && uv pip install -e ".[dev]"
-
-pre-commit install
-
-docker-compose -f docker/docker-compose.yml up --build
-```
-
----
-
-## Architecture
-
-```mermaid
-flowchart TD
-    A[World Bank API] --> D[data/raw/]
-    B[Berkeley Earth] --> D
-    C[World Happiness Report] --> D
-    D --> E[DuckDB source tables]
-    E --> F[dbt staging]
-    F --> G[dbt intermediate]
-    G --> H[dbt marts]
-    H --> I[Statistical Analysis\nPolars + linearmodels]
-    I --> J[Clustering\nscikit-learn]
-    H --> K[Streamlit Dashboard]
-    L[Dagster] -->|orchestrates| E
-    L -->|orchestrates| F
-    L -->|orchestrates| I
-```
-
----
-
-## Data Sources
-
-| Source | Provider | Granularity | Key Variables |
-|--------|----------|-------------|---------------|
-| Climate | Berkeley Earth / World Bank | Country-Year | Temperature anomaly, CO2 emissions |
-| Economy | World Bank Open Data API | Country-Year | GDP per capita, Gini index, unemployment |
-| Wellbeing | World Happiness Report (Gallup) | Country-Year | Happiness score and sub-components |
-
-**Common analysis window:** 2005–2022 (determined by WHR availability)
-
----
-
-## Tech Stack
-
-| Layer | Tool | Rationale |
-|-------|------|-----------|
-| Storage | DuckDB | Serverless OLAP, native dbt integration |
-| Transformation | dbt-core + dbt-duckdb | Real DAG lineage, dbt test, dbt docs |
-| Processing | Polars | Modern, fast, single-machine sufficient |
-| Statistics | statsmodels + linearmodels | Panel fixed-effects, not plain OLS |
-| Clustering | scikit-learn | KMeans with StandardScaler + PCA |
-| Orchestration | Dagster | dbt-native integration, modern alternative to Airflow |
-| Dashboard | Streamlit | Interactive product, not a notebook |
-| CI/CD | GitHub Actions | Automated lint + test + dbt test on push |
-| Dependency | uv | Lock-file guaranteed, 10-100x faster than pip |
-
----
-
-## Statistical Methodology
-
-- **Panel Regression:** `linearmodels.PanelOLS` with country fixed effects to control for time-invariant unobserved heterogeneity
-- **VIF Check:** Variance inflation factor computed for all regressors
-- **Train-Test Split:** Temporal (not random) — e.g. 2005–2018 train / 2019–2022 test
-- **Causality:** Granger causality tests with lag structures (t-1, t-5); correlation ≠ causation is explicitly stated throughout
-- **Clustering:** StandardScaler → Elbow + Silhouette → KMeans → optional PCA visualization
-- **Reproducibility:** `RANDOM_SEED=42` fixed globally
-
----
-
-## Limitations & Threats to Validity
-
-- Correlation is not causation. No causal claims are made.
-- Missing data for lower-income countries may introduce selection bias.
-- World Happiness Report relies on self-reported survey data (Gallup).
-- Analysis window limited to 2005–2022 by WHR availability.
-- Country-level aggregation masks within-country heterogeneity.
-
----
+## Architecture & Technology Stack
+The project relies on a modern, high-performance local data stack:
+* **DuckDB**: For ultra-fast analytical queries and data warehousing.
+* **Polars**: For lightning-fast DataFrame manipulation and data wrangling.
+* **Jupyter Notebook**: The unified presentation and analysis layer.
+* **Plotly**: For interactive visualizations (Choropleth maps, scatter plots).
+* **Scikit-Learn & Statsmodels**: For advanced statistical analysis, clustering (K-Means), PCA, and non-linear modeling (Random Forest).
+* **uv**: For strict, reproducible Python environment and dependency management.
 
 ## Project Structure
+* `data/`: Contains raw CSVs and the unified `climate_wellbeing.duckdb` database.
+* `analyses/`: Contains the master Jupyter Notebook (`Climate_Economic_Wellbeing_Analysis.ipynb`) and data ingestion scripts.
+* `generate_notebook.py`: Python script used to programmatically generate the notebook with the correct structure and cells.
 
+## Key Insights
+
+### 1. The Power of Social Support & GDP
+Based on our OLS Panel Regression and Random Forest models, **Social Support** and **GDP per capita** emerged as the strongest predictors of a country's happiness score. 
+
+```text
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:        happiness_score   R-squared:                       0.801
+Model:                            OLS   Adj. R-squared:                  0.793
+...
+===================================================================================
+                      coef    std err          t      P>|t|      [0.025      0.975]
+-----------------------------------------------------------------------------------
+const               2.1750      0.232      9.361      0.000       1.715       2.635
+gdp_per_capita   1.611e-05   3.54e-06      4.555      0.000    9.11e-06    2.31e-05
+social_support      1.2492      0.236      5.291      0.000       0.782       1.717
+life_expectancy     1.4319      0.325      4.407      0.000       0.789       2.075
+freedom             1.2115      0.402      3.012      0.003       0.415       2.008
+corruption         -0.2652      0.660     -0.402      0.689      -1.572       1.042
+===================================================================================
 ```
-├── .github/workflows/     CI/CD pipeline
-├── docker/                Dockerfile, docker-compose.yml
-├── data/
-│   ├── raw/               Immutable, date-stamped raw data
-│   └── external/          Crosswalk / manual override tables
-├── dbt_project/
-│   ├── models/staging/    stg_climate, stg_worldbank, stg_happiness, stg_country_mapping
-│   ├── models/intermediate/ int_country_year_joined
-│   └── models/marts/      fct_climate_economy, dim_country
-├── analyses/src/          Python: data_processing, modeling, clustering
-├── orchestration/         Dagster definitions
-├── dashboard/             Streamlit app
-├── tests/                 pytest unit tests
-└── docs/                  Methodology notes, architecture diagrams
-```
 
----
+### 2. Global Clustering
+Using K-Means and PCA, countries naturally grouped into three distinct profiles based on economic stability, perceived corruption, and social support, highlighting the deep divide between developed and developing nations.
 
-## How to Reproduce
+## Sample Data (fct_climate_economy)
+|    | country_name   |   year | iso_code   |   happiness_score |   happiness_rank |   social_support |   life_expectancy |   freedom |   corruption |   generosity |   gdp_per_capita |
+|---:|:---------------|-------:|:-----------|------------------:|-----------------:|-----------------:|------------------:|----------:|-------------:|-------------:|-----------------:|
+|  0 | Argentina      |   2015 | AR         |             6.574 |               30 |          1.24823 |          0.78723  |  0.44974  |    0.08484   |     0.11451  |         13679.6  |
+|  1 | Australia      |   2017 | AU         |             7.284 |               10 |          1.51004 |          0.843887 |  0.601607 |    0.301184  |     0.477699 |         54117.5  |
+|  2 | Bahrain        |   2019 | BH         |             6.199 |               37 |          1.368   |          0.871    |  0.536    |    0.11      |     0.255    |         27259.7  |
+|  3 | Benin          |   2018 | BJ         |             4.141 |              136 |          0.372   |          0.24     |  0.44     |    0.067     |     0.163    |          1151.74 |
 
-```bash
-docker-compose -f docker/docker-compose.yml up --build
-```
-
-All services start automatically: Dagster orchestrator (port 3000), Streamlit dashboard (port 8501).
-
----
-
-## License
-
-MIT — see [LICENSE](LICENSE)
+## How to Run the Analysis
+1. Ensure `uv` is installed on your system.
+2. Navigate to the project root and start the Jupyter environment:
+   ```bash
+   uv run jupyter notebook
+   ```
+3. Open `analyses/Climate_Economic_Wellbeing_Analysis.ipynb` and click **Run All Cells**.
