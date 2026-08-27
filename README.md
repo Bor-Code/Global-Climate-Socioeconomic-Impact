@@ -22,6 +22,8 @@ The project relies on a modern, high-performance local data stack:
 ### 1. The Power of Social Support & GDP
 Based on our OLS Panel Regression and Random Forest models, **Social Support** and **GDP per capita** emerged as the strongest predictors of a country's happiness score. 
 
+![Random Forest Importance](docs/rf_importance.png)
+
 ```text
                             OLS Regression Results                            
 ==============================================================================
@@ -40,8 +42,14 @@ corruption         -0.2652      0.660     -0.402      0.689      -1.572       1.
 ===================================================================================
 ```
 
-### 2. Global Clustering
-Using K-Means and PCA, countries naturally grouped into three distinct profiles based on economic stability, perceived corruption, and social support, highlighting the deep divide between developed and developing nations.
+### 2. Global Clustering & Spatial Distribution
+Using K-Means and PCA, countries naturally grouped into distinct profiles based on economic stability, perceived corruption, and social support.
+
+**Wealth vs Wellbeing Scatter Analysis:**
+![GDP vs Happiness](docs/scatter.png)
+
+**Global Distribution Map:**
+![Happiness Map](docs/map.png)
 
 ## Sample Data (fct_climate_economy)
 |    | country_name   |   year | iso_code   |   happiness_score |   happiness_rank |   social_support |   life_expectancy |   freedom |   corruption |   generosity |   gdp_per_capita |
