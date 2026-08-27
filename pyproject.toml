@@ -39,6 +39,8 @@ dependencies = [
     "prometheus-fastapi-instrumentator>=7.0.0",
     "redis>=8.1.0",
     "kafka-python>=3.0.11",
+    "grpcio>=1.83.0",
+    "grpcio-tools>=1.81.1",
 ]
 
 [project.optional-dependencies]
