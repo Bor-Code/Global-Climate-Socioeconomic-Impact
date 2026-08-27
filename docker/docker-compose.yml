@@ -89,6 +89,14 @@ services:
     depends_on:
       - fastapi
 
+  redis:
+    image: redis:alpine
+    container_name: climate_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+
   grafana:
     image: grafana/grafana:latest
     container_name: climate_grafana
