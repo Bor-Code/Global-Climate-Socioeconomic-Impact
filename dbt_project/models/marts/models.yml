@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: fct_climate_economy
+    description: "Unified fact table containing climate, economic, and wellbeing indicators."
+    columns:
+      - name: country_name
+        description: "Standardized country name"
+        tests:
+          - not_null
+
+      - name: year
+        description: "The year of the observation"
+        tests:
+          - not_null
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - country_name
+            - year
