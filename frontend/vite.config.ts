@@ -6,6 +6,7 @@ import federation from '@originjs/vite-plugin-federation'
 export default defineConfig({
   plugins: [
     react(),
+    // @ts-ignore
     federation({
       name: 'climate_dashboard',
       filename: 'remoteEntry.js',
