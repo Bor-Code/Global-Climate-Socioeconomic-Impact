@@ -106,13 +106,15 @@ def predict_happiness(features: HappinessFeatures):
             "features_used": features.dict(),
         }
         
-        # Publish Event to Kafka
-        producer = get_kafka_producer()
-        if producer:
+        # Publish to Kafka in background thread (non-blocking)
+        def publish_kafka():
             try:
-                producer.send('prediction_events', result)
-            except Exception as e:
-                print(f"Failed to publish to Kafka: {e}")
+                producer = get_kafka_producer()
+                if producer:
+                    producer.send('prediction_events', result)
+            except Exception:
+                pass
+        threading.Thread(target=publish_kafka, daemon=True).start()
                 
         return result
     except Exception as e:
@@ -157,6 +159,41 @@ def get_data_summary():
             pass
             
         return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/data/charts")
+def get_chart_data():
+    """Returns structured data for frontend Recharts visualization."""
+    if not db_path.exists():
+        raise HTTPException(status_code=404, detail="Database not found.")
+    
+    try:
+        conn = duckdb.connect(str(db_path), read_only=True)
+        # Top 10 Happiest Countries for Bar Chart
+        top_10_df = conn.execute("SELECT country_name, happiness_score FROM main_marts.fct_climate_economy WHERE year = (SELECT MAX(year) FROM main_marts.fct_climate_economy) ORDER BY happiness_score DESC LIMIT 10").df()
+        
+        # Bottom 10 Happiest
+        bottom_10_df = conn.execute("SELECT country_name, happiness_score FROM main_marts.fct_climate_economy WHERE year = (SELECT MAX(year) FROM main_marts.fct_climate_economy) AND happiness_score IS NOT NULL ORDER BY happiness_score ASC LIMIT 10").df()
+
+        # GDP vs Happiness for Scatter Plot
+        scatter_df = conn.execute("SELECT country_name, gdp_per_capita, happiness_score FROM main_marts.fct_climate_economy WHERE year = (SELECT MAX(year) FROM main_marts.fct_climate_economy) AND gdp_per_capita IS NOT NULL AND happiness_score IS NOT NULL").df()
+
+        # Life Expectancy vs Happiness
+        life_exp_df = conn.execute("SELECT country_name, life_expectancy, happiness_score FROM main_marts.fct_climate_economy WHERE year = (SELECT MAX(year) FROM main_marts.fct_climate_economy) AND life_expectancy IS NOT NULL AND happiness_score IS NOT NULL").df()
+        
+        # Social Support vs Happiness
+        social_df = conn.execute("SELECT country_name, social_support, happiness_score FROM main_marts.fct_climate_economy WHERE year = (SELECT MAX(year) FROM main_marts.fct_climate_economy) AND social_support IS NOT NULL AND happiness_score IS NOT NULL").df()
+
+        conn.close()
+        
+        return {
+            "top10": top_10_df.to_dict(orient="records"),
+            "bottom10": bottom_10_df.to_dict(orient="records"),
+            "scatter": scatter_df.to_dict(orient="records"),
+            "lifeExp": life_exp_df.to_dict(orient="records"),
+            "social": social_df.to_dict(orient="records")
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
