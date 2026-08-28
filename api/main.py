@@ -43,7 +43,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,7 +72,7 @@ class HappinessFeatures(BaseModel):
         }
 
 class ChatRequest(BaseModel):
-    prompt: string
+    prompt: str
 
 # Global variables
 rf_model = None
@@ -169,30 +169,72 @@ def chat_with_data(request: ChatRequest):
         
     try:
         client = genai.Client(api_key=gemini_key)
-        
         schema_info = "Table: main_marts.fct_climate_economy\nColumns: country_name, year, happiness_score, gdp_per_capita, social_support, life_expectancy, freedom, corruption, co2_per_capita"
-        prompt_sql = f"You are a Data Analyst. Based on this DuckDB schema:\n{schema_info}\n\nWrite ONLY a valid DuckDB SQL query to answer this user question: '{request.prompt}'. Do not include markdown formatting like ```sql, just the raw query."
+        
+        prompt_sql = f"""You are a Data Analyst assistant for a database with this schema:
+{schema_info}
+
+The user asked: '{request.prompt}'
+
+If this question requires querying the database, return ONLY the raw DuckDB SQL query (no markdown, no ```sql).
+If this is a greeting or general chit-chat (like 'merhaba', 'hello', 'who are you'), reply with NO_SQL followed by your conversational response. For example: 'NO_SQL: Merhaba! Size iklim, ekonomi ve mutluluk verileri konusunda nasıl yardımcı olabilirim?'"""
         
         response_sql = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.6-flash",
             contents=prompt_sql,
         )
-        sql_query = response_sql.text.strip().replace("```sql", "").replace("```", "").strip()
+        raw_text = response_sql.text.strip()
         
-        conn = duckdb.connect(str(db_path), read_only=True)
-        result_df = conn.execute(sql_query).df()
-        conn.close()
+        if raw_text.startswith("NO_SQL"):
+            answer = raw_text.replace("NO_SQL:", "").replace("NO_SQL", "").strip()
+            return {
+                "answer": answer,
+                "sql_query": None,
+                "data": []
+            }
+            
+        sql_query = raw_text.replace("```sql", "").replace("```", "").strip()
         
-        prompt_nl = f"The user asked: '{request.prompt}'.\nThe database returned this data:\n{result_df.to_string()}\n\nExplain this data to the user in a friendly, concise, and helpful way."
-        response_nl = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt_nl,
-        )
-        
-        return {
-            "answer": response_nl.text,
-            "sql_query": sql_query,
-            "data": result_df.to_dict(orient="records")
-        }
+        try:
+            conn = duckdb.connect(str(db_path), read_only=True)
+            result_df = conn.execute(sql_query).df()
+            conn.close()
+            
+            prompt_nl = f"The user asked: '{request.prompt}'.\nThe database returned this data:\n{result_df.to_string()}\n\nExplain this data to the user in a friendly, concise, and helpful way in the same language they asked."
+            response_nl = client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=prompt_nl,
+            )
+            
+            return {
+                "answer": response_nl.text,
+                "sql_query": sql_query,
+                "data": result_df.to_dict(orient="records")
+            }
+        except Exception as sql_err:
+            # Fallback to direct conversational answer if SQL execution fails
+            prompt_general = f"The user asked: '{request.prompt}'. Answer their question or greeting politely and inform them you can analyze the climate and happiness database for them."
+            response_general = client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=prompt_general,
+            )
+            return {
+                "answer": response_general.text,
+                "sql_query": None,
+                "data": []
+            }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        traceback.print_exc()
+        err_msg = str(e)
+        if "503" in err_msg or "UNAVAILABLE" in err_msg:
+            return {
+                "answer": "Yapay zeka servisi şu an yoğun talep nedeniyle geçici olarak meşgul. Lütfen birkaç saniye sonra sorunuzu tekrar deneyin.",
+                "sql_query": None,
+                "data": []
+            }
+        return {
+            "answer": f"Bir hata oluştu: {err_msg[:100]}... Lütfen tekrar deneyin.",
+            "sql_query": None,
+            "data": []
+        }

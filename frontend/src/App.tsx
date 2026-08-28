@@ -31,13 +31,25 @@ function App() {
       .catch(err => console.error("Could not load summary", err))
   }, [])
 
+  const [predictLoading, setPredictLoading] = useState(false)
+
   const handlePredict = async () => {
+    setPredictLoading(true)
     try {
-      const res = await axios.post(`${API_URL}/predict`, features)
+      const payload = {
+        gdp_per_capita: Number(features.gdp_per_capita) || 45000.0,
+        social_support: Number(features.social_support) || 1.45,
+        life_expectancy: Number(features.life_expectancy) || 0.85,
+        freedom: Number(features.freedom) || 0.65,
+        corruption: Number(features.corruption) || 0.15
+      }
+      const res = await axios.post(`${API_URL}/predict`, payload)
       setPrediction(res.data.predicted_happiness_score)
     } catch (err) {
       console.error(err)
-      alert("Error predicting score")
+      alert("Error predicting score. Check backend logs.")
+    } finally {
+      setPredictLoading(false)
     }
   }
 
@@ -109,8 +121,8 @@ function App() {
                  value={features.life_expectancy} 
                  onChange={e => setFeatures({...features, life_expectancy: parseFloat(e.target.value)})} />
 
-          <button className="btn-primary" onClick={handlePredict} style={{marginTop: '1rem'}}>
-            Run ML Prediction
+          <button className="btn-primary" onClick={handlePredict} disabled={predictLoading} style={{marginTop: '1rem', opacity: predictLoading ? 0.7 : 1}}>
+            {predictLoading ? "Calculating..." : "Run ML Prediction"}
           </button>
 
           {prediction !== null && (
